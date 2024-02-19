@@ -60,7 +60,7 @@ PagingController<int, String> buildPagingControllerWithPopulatedState(
     filledStateOption,
   );
 
-  return PagingController.fromValue(state, firstPageKey: 1);
+  return PagingController.fromValue(state, firstPageKey: 1, isRefresh: false);
 }
 
 enum PopulatedStateOption {

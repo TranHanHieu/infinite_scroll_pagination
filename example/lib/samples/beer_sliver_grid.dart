@@ -21,7 +21,7 @@ class _BeerSliverGridState extends State<BeerSliverGrid> {
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
+    _pagingController.addPageRequestListener((pageKey, isRefresh) async {
       _bloc.onPageRequestSink.add(pageKey);
     });
 

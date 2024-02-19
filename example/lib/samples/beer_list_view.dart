@@ -13,12 +13,13 @@ class _BeerListViewState extends State<BeerListView> {
   static const _pageSize = 20;
 
   final PagingController<int, BeerSummary> _pagingController =
-      PagingController(firstPageKey: 1);
+      PagingController(firstPageKey: 1, isRefresh: false);
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
-      _fetchPage(pageKey);
+    _pagingController.addPageRequestListener((pageKey, isRefresh) async {
+      print('$pageKey - $isRefresh');
+      await _fetchPage(pageKey);
     });
     super.initState();
   }

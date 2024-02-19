@@ -147,6 +147,8 @@ class _PagedLayoutBuilderState<PageKeyType, ItemType>
 
   PageKeyType? get _nextKey => _pagingController.nextPageKey;
 
+  bool? get _isRefresh => _pagingController.isRefresh;
+
   /// Avoids duplicate requests on rebuilds.
   bool _hasRequestedNextPage = false;
 
@@ -159,6 +161,7 @@ class _PagedLayoutBuilderState<PageKeyType, ItemType>
           if (status == PagingStatus.loadingFirstPage) {
             _pagingController.notifyPageRequestListeners(
               _pagingController.firstPageKey,
+              _pagingController?.isRefresh
             );
           }
 
@@ -269,7 +272,7 @@ class _PagedLayoutBuilderState<PageKeyType, ItemType>
       if (_hasNextPage && isBuildingTriggerIndexItem) {
         // Schedules the request for the end of this frame.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _pagingController.notifyPageRequestListeners(_nextKey!);
+          _pagingController.notifyPageRequestListeners(_nextKey!, _isRefresh);
         });
         _hasRequestedNextPage = true;
       }

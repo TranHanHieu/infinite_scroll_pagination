@@ -2,8 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:infinite_scroll_pagination/src/model/paging_state.dart';
 import 'package:infinite_scroll_pagination/src/model/paging_status.dart';
 
-typedef PageRequestListener<PageKeyType> = void Function(
+typedef PageRequestListener<PageKeyType> = Future Function(
   PageKeyType pageKey,
+  bool? isRefresh,
 );
 
 typedef PagingStatusListener = void Function(
@@ -25,6 +26,7 @@ class PagingController<PageKeyType, ItemType>
     extends ValueNotifier<PagingState<PageKeyType, ItemType>> {
   PagingController({
     required this.firstPageKey,
+    this.isRefresh,
     this.invisibleItemsThreshold,
   }) : super(
           PagingState<PageKeyType, ItemType>(nextPageKey: firstPageKey),
@@ -36,6 +38,7 @@ class PagingController<PageKeyType, ItemType>
   PagingController.fromValue(
     PagingState<PageKeyType, ItemType> value, {
     required this.firstPageKey,
+    required this.isRefresh,
     this.invisibleItemsThreshold,
   }) : super(value);
 
@@ -50,6 +53,9 @@ class PagingController<PageKeyType, ItemType>
 
   /// The key for the first page to be fetched.
   final PageKeyType firstPageKey;
+
+  /// status when call refresh
+  late bool? isRefresh = false;
 
   /// List with all items loaded so far. Initially `null`.
   List<ItemType>? get itemList => value.itemList;
@@ -109,6 +115,17 @@ class PagingController<PageKeyType, ItemType>
     );
   }
 
+
+  void appendFirst(List<ItemType> newItems) {
+    final previousItems = value.itemList ?? [];
+    final itemList = newItems + previousItems;
+    value = PagingState<PageKeyType, ItemType>(
+      itemList: itemList,
+      error: null,
+      nextPageKey: value.nextPageKey,
+    );
+  }
+
   /// Appends [newItems] to the previously loaded ones and sets the next page
   /// key to `null`.
   void appendLastPage(List<ItemType> newItems) => appendPage(newItems, null);
@@ -120,6 +137,7 @@ class PagingController<PageKeyType, ItemType>
 
   /// Resets [value] to its initial state.
   void refresh() {
+    isRefresh = true;
     value = PagingState<PageKeyType, ItemType>(
       nextPageKey: firstPageKey,
       error: null,
@@ -199,7 +217,7 @@ class PagingController<PageKeyType, ItemType>
   ///
   /// If listeners are added or removed during this function, the modifications
   /// will not change which listeners are called during this iteration.
-  void notifyPageRequestListeners(PageKeyType pageKey) {
+  void notifyPageRequestListeners(PageKeyType pageKey, bool? _isRefresh) {
     assert(_debugAssertNotDisposed());
 
     if (_pageRequestListeners?.isEmpty ?? true) {
@@ -209,9 +227,10 @@ class PagingController<PageKeyType, ItemType>
     final localListeners =
         List<PageRequestListener<PageKeyType>>.from(_pageRequestListeners!);
 
-    localListeners.forEach((listener) {
+    localListeners.forEach((listener) async {
       if (_pageRequestListeners!.contains(listener)) {
-        listener(pageKey);
+        await listener(pageKey, _isRefresh);
+        isRefresh = false;
       }
     });
   }

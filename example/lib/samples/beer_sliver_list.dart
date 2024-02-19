@@ -20,7 +20,7 @@ class _BeerSliverListState extends State<BeerSliverList> {
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
+    _pagingController.addPageRequestListener((pageKey, isRefresh) async {
       _fetchPage(pageKey);
     });
 

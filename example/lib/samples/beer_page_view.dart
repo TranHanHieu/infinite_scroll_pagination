@@ -19,7 +19,7 @@ class _BeerPageViewState extends State<BeerPageView> {
 
   @override
   void initState() {
-    _pagingController.addPageRequestListener((pageKey) {
+    _pagingController.addPageRequestListener((pageKey, isRefresh) async {
       _fetchPage(pageKey);
     });
     super.initState();
