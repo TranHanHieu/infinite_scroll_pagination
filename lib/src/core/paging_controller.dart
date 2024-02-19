@@ -26,7 +26,7 @@ class PagingController<PageKeyType, ItemType>
     extends ValueNotifier<PagingState<PageKeyType, ItemType>> {
   PagingController({
     required this.firstPageKey,
-    this.isRefresh,
+    this.isRefresh = false,
     this.invisibleItemsThreshold,
   }) : super(
           PagingState<PageKeyType, ItemType>(nextPageKey: firstPageKey),
@@ -55,7 +55,7 @@ class PagingController<PageKeyType, ItemType>
   final PageKeyType firstPageKey;
 
   /// status when call refresh
-  late bool? isRefresh = false;
+  bool? isRefresh = false;
 
   /// List with all items loaded so far. Initially `null`.
   List<ItemType>? get itemList => value.itemList;
